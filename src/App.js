@@ -1,18 +1,28 @@
 import React, { Component } from 'react';
 import cls from './App.module.scss';
-import Car from './Car/Car'
+import Car from './Car/Car';
+import ErrorBoundary from './ErrorBoundary/ErrorBoundary';
+import Counter from './Counter/Counter';
+
+
+export const ClickedContext = React.createContext(false)
 
 class App extends Component {
 
-  state = {
-    cars: [
-      {name: 'Ford', year: 2018},
-      {name: 'Audi', year: 2016},
-      {name: 'Mazda', year: 2010}
-    ],
-    pageTitle: 'React components',
-    showCars: false
-  }
+    constructor(props) {
+      super(props)
+
+      this.state = {
+        clicked: false,
+        cars: [
+          {name: 'Ford', year: 2018},
+          {name: 'Audi', year: 2016},
+          {name: 'Mazda', year: 2010}
+        ],
+        pageTitle: 'React components',
+        showCars: false
+      }
+    }
 
   toggleCarsHandler = () => {
     this.setState({
@@ -31,7 +41,6 @@ class App extends Component {
     })
  }
 
-
  deleteHandler(index) {
     const cars = this.state.cars.concat();
     cars.splice(index, 1);
@@ -40,34 +49,54 @@ class App extends Component {
     })
  }
 
+ componentWillMount() {
+   console.log('App componentWillMount');
+ }
+
+ componentDidMount() {
+  console.log('App componentDidMount');
+ }
 
   render() {
+    console.log('App render');
     const divStyle = {
       textAlign: 'center'
     }
-
-
     return (
       <div style={divStyle}>
         <h1>{this.state.pageTitle}</h1>
         
-        <button onClick={this.toggleCarsHandler} className={cls.AppButton}>Toggle cars</button>
+        <ClickedContext.Provider value={this.state.clicked}>
+          <Counter />
+        </ClickedContext.Provider>
         
+
+        <button 
+          style={{marginTop: '10px'}}
+          onClick={this.toggleCarsHandler} 
+          className={cls.AppButton}
+        >Toggle cars</button>
+
+        <button onClick={() => this.setState({clicked: true})}>Change clicked</button>
+
         { this.state.showCars
           ? this.state.cars.map((car, index) => {
               return(
-                <div style={{
+                <div key={index}
+                  style={{
                   width: 400,
                   margin: 'auto',
                   paddingTop: '20px'
                 }}>
+                  <ErrorBoundary>
                   <Car 
-                    key={index}
                     name={car.name}
                     year={car.year}
+                    index={index}
                     onDelete={this.deleteHandler.bind(this, index)}
                     onChangeName={event => this.onChangeName(event.target.value, index)}
                   />
+                  </ErrorBoundary>
                 </div>
               )
             })

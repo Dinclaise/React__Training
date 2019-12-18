@@ -1,46 +1,61 @@
 import React from 'react'
-import Radium from 'radium';
 import cls from './Car.module.css';
+import withClass from './../hoc/withClass';
+import PropTypes from 'prop-types';
 
 
-const Car = props => {
 
-  let inputClasses = [cls.input];
+class Car extends React.Component {
 
-  if (props.name !== '') {
+  constructor(props) {
+    super(props)
+
+    this.inputRef = React.createRef();
+  }
+
+  componentDidMount() {
+    if (this.props.index === 0) {
+      this.inputRef.current.focus() 
+    }
+  }
+
+  render() {
+    console.log('Car render')
+    let inputClasses = [cls.input];
+
+  if (this.props.name !== '') {
     inputClasses.push(cls.yellow);
   } else  {
     inputClasses.push(cls.red);
   }
 
-  if (props.name.length > 3) {
+  if (this.props.name.length > 3) {
     inputClasses.push(cls.bold);
   }
 
-  const style = {
-    boxShadow: '0 4px 5px 0 rgba(0, 0, 0, .14)',
-    border: '1px solid #ccc',
-    ':hover': {
-      border: '1px solid #aaa',
-      boxShadow: '0 4px 15px 0 rgba(0, 0, 0, .25)',
-      cursor: 'pointer'
-    }
-
-  }
-
   return (
-    <div className={cls.Car} style={style}>
-      <h3>Сar name: {props.name}</h3>
-      <p>Year: <strong>{props.year}</strong></p>
+    <React.Fragment>
+      <h3>Сar name: {this.props.name}</h3>
+      <p>Year: <strong>{this.props.year}</strong></p>
       <input 
+        ref={this.inputRef}
         type="text" 
-        onChange={props.onChangeName} 
-        value={props.name}
+        onChange={this.props.onChangeName} 
+        value={this.props.name}
         className={inputClasses.join(' ')}
       />
-      <button onClick={props.onDelete}>Delete</button>
-    </div>
+      <button onClick={this.props.onDelete}>Delete</button>
+    </React.Fragment>
   )
+  }
 }
 
-export default Radium(Car)
+Car.propTypes = {
+  name: PropTypes.string.isRequired,
+  year: PropTypes.number,
+  index: PropTypes.number,
+  onChangeName: PropTypes.func,
+  onDelete: PropTypes.func
+}
+
+export default withClass(Car, cls.Car)
